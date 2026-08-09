@@ -1,0 +1,33 @@
+Solution(
+  name: "cogito",
+  projects: [
+    Project(
+      name: "holoq/repo-foom/cogito/src/Cogito/Cogito.csproj",
+      references: ["VTR", "Datasets", "Ronmamon", "Ronmamon.Generator"],
+    ),
+    // WAVE-0 deliberately does not reference Cogito: the dashboard tails the
+    // schema-agnostic curve.tsv surface. The engine edge returns when the GUI
+    // decodes the grammar DAG directly.
+    Project(
+      name: "Cogito.GUI",
+      references: [
+        "Vibekit.Core",
+        "Vibekit.Bob",
+        "Bob.Render",
+        "Boboo.GUI",
+        "Mathtek",
+        "Guitek",
+        "VTR",
+        "Ronmamon",
+      ],
+    ),
+
+    Solution(path: "../../repo-kit/vibekit/Vibekit.slnx"),
+    Solution(path: "../../repo-os3/bob/bob.slnx"),
+    Solution(path: "../../repo-lib/Mathtek/Mathtek.slnx"),
+    Solution(path: "../../repo-lib/Datasets.cs/Datasets.slnx"),
+    Solution(path: "../../repo-lib/Guitek/Guitek.slnx"),
+    Solution(path: "../../repo-lib/ronmamon/ronmamon.slnx"),
+    Solution(path: "../../repo-lib/VTR.cs/VTR.slnx"),
+  ],
+)

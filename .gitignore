@@ -1,0 +1,18 @@
+bin/
+obj/
+dist/
+*.g.csproj
+*.g.slnx
+*.g.cs
+/data/
+/docs/
+/scratchpad/
+/SPIRE-*.md
+runs/
+tmp/
+/.tmp/
+# IDE state
+.idea/
+*.DotSettings.user
+# Claude Code local settings
+.claude/

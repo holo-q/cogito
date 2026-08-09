@@ -1,0 +1,29 @@
+Project(
+  sdk: "Microsoft.NET.Sdk",
+  properties: [
+    // Cogito.GUI — the live dashboard that TAILS a run's curve.tsv and draws the training
+    // mind as sparklines (WAVE-0). A diagnostic cockpit, not the deterministic engine: it
+    // only ever READS the run dir (FileShare.Read tail), draws no RNG, is never checkpointed
+    // — invisible to cogito's determinism Vow. JIT is fine (no AOT); the windowed GLFW/GL
+    // host + fonts + input + loop all come from Vibekit.Bob, so this project owns only the
+    // tail-reader + the surfaces.
+    Property(name: "OutputType", value: "Exe"),
+    Property(name: "AssemblyName", value: "cogito-gui"),
+    Property(name: "LangVersion", value: "latest"),
+    Property(name: "Nullable", value: "enable"),
+    Property(name: "ImplicitUsings", value: "enable"),
+    Property(name: "AllowUnsafeBlocks", value: "true"),
+    Property(name: "InvariantGlobalization", value: "true"),
+  ],
+  package_references: [
+    // The GLFW/OpenGL windowing stack BobWindow drives (Silk.NET) + HarfBuzz text shaping.
+    // Mirrors sorsrs's App csproj — these must land in THIS exe's output dir (transitive
+    // through Vibekit.Bob does not propagate native assets to an executable).
+    PackageReference(include: "Silk.NET.Windowing"),
+    PackageReference(include: "Silk.NET.Windowing.Glfw"),
+    PackageReference(include: "Silk.NET.OpenGL"),
+    PackageReference(include: "Silk.NET.Input"),
+    PackageReference(include: "Silk.NET.Maths"),
+    PackageReference(include: "HarfBuzzSharp.NativeAssets.Linux"),
+  ],
+)

@@ -1,0 +1,384 @@
+<title>COGITO SCOPE — the mind's oscilloscope</title>
+<style>
+  :root{
+    --ground:#0a0d13; --panel:#111722; --panel2:#0d121b; --line:#212a38;
+    --ink:#dce3ee; --dim:#7e899c; --faint:#4b5568;
+    --signal:#57d6a0;      /* phosphor green — alive / in-basin / real signal */
+    --vest:#f0b45a;        /* amber — vested / evidence */
+    --dream:#9b8cf0;       /* violet — dream / unwitnessed */
+    --real:#54c4f2;        /* cyan — real span */
+    --sink:#e46a76;        /* red — collapse / the -1.11 sink */
+    --mono:ui-monospace,'JetBrains Mono','SF Mono','Cascadia Code',Menlo,Consolas,monospace;
+    --sans:system-ui,-apple-system,'Segoe UI',Roboto,sans-serif;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:
+      radial-gradient(120% 80% at 50% -10%, #10161f 0%, var(--ground) 55%) fixed;
+    color:var(--ink);font-family:var(--sans);line-height:1.6;
+    font-size:15px;-webkit-font-smoothing:antialiased;overflow-x:hidden}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 24px}
+  h1,h2,h3,.label,.tab,.k{font-family:var(--mono)}
+  .mono{font-family:var(--mono);font-variant-numeric:tabular-nums}
+  a{color:var(--signal)}
+  section{padding:56px 0;border-top:1px solid var(--line)}
+  section:first-of-type{border-top:0}
+
+  /* ── eyebrow / labels ── */
+  .label{font-size:11px;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+  .k{display:inline-flex;align-items:center;justify-content:center;min-width:20px;height:20px;
+     padding:0 5px;border:1px solid var(--line);border-radius:4px;background:var(--panel);
+     color:var(--signal);font-size:12px;font-weight:600}
+
+  /* ── hero ── */
+  .hero{padding-top:72px}
+  .hero h1{font-size:clamp(30px,6vw,54px);letter-spacing:.04em;margin:14px 0 6px;
+    font-weight:600;text-wrap:balance;line-height:1.05}
+  .hero h1 b{color:var(--signal);font-weight:600}
+  .thesis{font-size:clamp(17px,2.4vw,21px);color:var(--ink);max-width:60ch;text-wrap:balance}
+  .thesis .em{color:var(--vest)}
+  .sub{color:var(--dim);max-width:64ch;margin-top:14px}
+
+  /* ── film strip schematic ── */
+  .film{margin-top:34px;border:1px solid var(--line);border-radius:10px;background:
+      linear-gradient(180deg,var(--panel) 0%,var(--panel2) 100%);padding:20px 20px 14px;position:relative;overflow:hidden}
+  .film .track{position:relative;height:96px}
+  .film .curve{position:absolute;inset:0}
+  .keyrow{display:flex;align-items:center;gap:0;height:26px;margin-bottom:8px}
+  .seg{flex:1;height:2px;background:var(--line);position:relative}
+  .kf{width:11px;height:11px;border-radius:50%;background:var(--signal);flex:none;
+     box-shadow:0 0 0 3px rgba(87,214,160,.14);z-index:2}
+  .delta{position:absolute;inset:0;display:flex;align-items:center;gap:3px;padding:0 6px;overflow:hidden}
+  .delta i{width:1px;height:8px;background:var(--faint);flex:none}
+  .playhead{position:absolute;top:-4px;bottom:-42px;width:2px;background:var(--vest);left:46%;z-index:5;
+    box-shadow:0 0 8px rgba(240,180,90,.6)}
+  .playhead::before{content:"";position:absolute;top:-3px;left:-4px;border:5px solid transparent;border-top-color:var(--vest)}
+  .filmlbl{display:flex;justify-content:space-between;margin-top:12px;color:var(--dim);font-size:11.5px}
+  .filmlbl .mono b{color:var(--signal);font-weight:600}
+
+  /* ── generic blocks ── */
+  h2{font-size:13px;letter-spacing:.2em;text-transform:uppercase;color:var(--signal);margin:0 0 4px;font-weight:600}
+  .lede{font-size:19px;color:var(--ink);max-width:62ch;margin:0 0 24px;text-wrap:balance}
+  p{max-width:66ch}
+  .dim{color:var(--dim)}
+
+  /* ── architecture flow ── */
+  .flow{display:grid;grid-template-columns:1fr;gap:14px;margin-top:10px}
+  .flowrow{display:grid;grid-template-columns:150px 1fr;gap:18px;align-items:start;
+    border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:16px 18px}
+  .flowrow .stage{font-family:var(--mono);color:var(--vest);font-size:13px;font-weight:600}
+  .flowrow .stage span{display:block;color:var(--faint);font-size:11px;font-weight:400;margin-top:2px}
+  .flowrow p{margin:0;font-size:14px;color:var(--dim)}
+  .flowrow code{color:var(--ink);font-family:var(--mono);font-size:12.5px;background:#0c1119;padding:1px 5px;border-radius:4px;border:1px solid var(--line)}
+
+  /* ── views grid ── */
+  .views{display:grid;grid-template-columns:repeat(2,1fr);gap:18px;margin-top:8px}
+  @media(max-width:760px){.views{grid-template-columns:1fr}}
+  .view{border:1px solid var(--line);border-radius:11px;background:var(--panel);overflow:hidden;display:flex;flex-direction:column}
+  .view .vh{display:flex;align-items:center;gap:10px;padding:14px 16px;border-bottom:1px solid var(--line)}
+  .view .vh .name{font-family:var(--mono);font-size:14px;letter-spacing:.04em;color:var(--ink);font-weight:600}
+  .view .vh .src{margin-left:auto;font-family:var(--mono);font-size:10.5px;color:var(--faint)}
+  .view .stage-box{background:var(--panel2);padding:14px 16px;min-height:172px}
+  .view .cap{padding:12px 16px 16px;font-size:13px;color:var(--dim)}
+  .view .cap b{color:var(--ink);font-weight:600}
+
+  /* tape mockup */
+  .spine{display:flex;flex-direction:column;gap:3px}
+  .srow{display:grid;grid-template-columns:52px 10px 1fr 40px;gap:8px;align-items:center;font-family:var(--mono);font-size:11px}
+  .srow .id{color:var(--faint)}
+  .srow .g{width:8px;height:8px;border-radius:50%}
+  .srow .bar{height:11px;border-radius:2px;position:relative}
+  .srow .len{color:var(--faint);text-align:right;font-size:10px}
+  .srow.vested .id{color:var(--vest)}
+  .srow.vested .bar{box-shadow:-3px 0 0 0 var(--vest)}
+  .srow.shed{opacity:.4}
+  .shedtag{font-size:9px;color:var(--sink);border:1px solid rgba(228,106,118,.4);border-radius:3px;padding:0 3px}
+
+  /* grammar icicle */
+  .icicle{display:flex;flex-direction:column;gap:3px;font-family:var(--mono);font-size:10px}
+  .ilayer{display:flex;gap:3px;height:26px}
+  .icell{border-radius:3px;display:flex;align-items:center;justify-content:center;color:#0a0d13;font-weight:600;overflow:hidden;white-space:nowrap;min-width:0}
+  .ilbl{color:var(--faint);width:34px;flex:none;display:flex;align-items:center;font-size:9px}
+
+  /* dynamics canvas */
+  #dyn{width:100%;height:150px;display:block}
+  .chips{display:flex;flex-wrap:wrap;gap:6px;margin-top:8px;font-family:var(--mono);font-size:10px}
+  .chip{border:1px solid var(--line);border-radius:4px;padding:1px 6px;color:var(--dim)}
+  .chip b{color:var(--ink);font-weight:600}
+
+  /* agent tally */
+  .tally{display:flex;flex-direction:column;gap:9px;font-family:var(--mono);font-size:11.5px}
+  .cand{display:grid;grid-template-columns:1fr auto;gap:6px;align-items:center}
+  .cand .file{display:flex;align-items:center;gap:7px;color:var(--dim);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cand .votebar{grid-column:1/-1;height:16px;border-radius:3px;display:flex;align-items:center;padding:0 7px;color:#0a0d13;font-weight:600;font-size:10px}
+  .cand .meta{color:var(--faint);font-size:10px}
+  .tag{font-size:9px;padding:0 5px;border-radius:3px;font-weight:600}
+  .tag.gold{background:rgba(240,180,90,.16);color:var(--vest);border:1px solid rgba(240,180,90,.5)}
+  .tag.ans{background:rgba(228,106,118,.16);color:var(--sink);border:1px solid rgba(228,106,118,.5)}
+  .verdict{margin-top:11px;font-family:var(--mono);font-size:11px;color:var(--dim);border-top:1px dashed var(--line);padding-top:9px}
+  .verdict b{color:var(--sink)}
+
+  /* timeline */
+  .tl{border:1px solid var(--line);border-radius:10px;background:var(--panel);padding:16px 18px;margin-top:8px}
+  .tlbar{position:relative;height:40px;background:var(--panel2);border-radius:6px;overflow:hidden;border:1px solid var(--line)}
+  .tlspark{position:absolute;inset:0}
+  .tick{position:absolute;top:0;bottom:0;width:1.5px;background:var(--signal);opacity:.55}
+  .tlhead{position:absolute;top:-3px;bottom:-3px;width:2px;background:var(--vest);box-shadow:0 0 7px rgba(240,180,90,.6);left:58%}
+  .tlctl{display:flex;align-items:center;gap:14px;margin-top:12px;color:var(--dim);font-family:var(--mono);font-size:11.5px;flex-wrap:wrap}
+  .tlctl .grp{display:flex;align-items:center;gap:7px}
+  .tlctl .btn{border:1px solid var(--line);border-radius:5px;background:var(--panel2);color:var(--ink);width:26px;height:22px;display:inline-flex;align-items:center;justify-content:center}
+  .tlctl .legkey{display:inline-flex;align-items:center;gap:5px}
+  .dot{width:8px;height:8px;border-radius:50%;flex:none}
+
+  /* perf laws */
+  .laws{display:grid;grid-template-columns:repeat(2,1fr);gap:14px;margin-top:8px}
+  @media(max-width:640px){.laws{grid-template-columns:1fr}}
+  .law{border:1px solid var(--line);border-radius:9px;background:var(--panel);padding:16px 18px}
+  .law .n{font-family:var(--mono);color:var(--signal);font-size:12px;font-weight:600;letter-spacing:.05em}
+  .law p{margin:6px 0 0;font-size:13.5px;color:var(--dim)}
+  .law code{font-family:var(--mono);color:var(--vest);font-size:12px}
+
+  /* build phases */
+  .phases{display:flex;flex-direction:column;gap:0;margin-top:8px;counter-reset:ph}
+  .phase{display:grid;grid-template-columns:64px 1fr;gap:20px;padding:18px 0;border-bottom:1px solid var(--line);align-items:baseline}
+  .phase:last-child{border-bottom:0}
+  .phase .pn{font-family:var(--mono);color:var(--signal);font-size:22px;font-weight:600}
+  .phase .pn span{display:block;font-size:10px;color:var(--faint);letter-spacing:.15em;margin-top:2px}
+  .phase h3{margin:0 0 5px;font-size:15px;color:var(--ink);font-weight:600;letter-spacing:.02em}
+  .phase p{margin:0;font-size:13.5px;color:var(--dim)}
+  .phase code{font-family:var(--mono);color:var(--ink);font-size:12.5px}
+
+  footer{padding:40px 0 64px;color:var(--faint);font-family:var(--mono);font-size:11.5px;text-align:center}
+  @media(prefers-reduced-motion:no-preference){
+    .playhead,.tlhead{animation:drift 9s ease-in-out infinite alternate}
+    @keyframes drift{from{left:36%}to{left:62%}}
+  }
+</style>
+
+<div class="wrap">
+
+  <!-- HERO -->
+  <header class="hero">
+    <div class="label">Cogito.GUI · Vibekit.Bob · read-only cockpit</div>
+    <h1>COGITO&nbsp;SCOPE<br><b>the mind's oscilloscope</b></h1>
+    <p class="thesis">A run is a <span class="em">film of a mind.</span> Checkpoints are keyframes, the journal is the delta stream, the curve is the scalar track. This scrubs it — frame by frame, live or replayed.</p>
+    <p class="sub">Every engine run now lands a complete, reconstructable record in <span class="mono">runs/&lt;verb&gt;_NNNN/</span>. The Scope reads that record and draws the mind operating — tape, grammar, criticality, decision — in pure vector shape, culled to the pixel.</p>
+
+    <div class="film" aria-label="run-as-film schematic">
+      <div class="track">
+        <div class="keyrow">
+          <span class="kf"></span><span class="seg"><span class="delta"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+          <span class="kf"></span><span class="seg"><span class="delta"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+          <span class="kf"></span><span class="seg"><span class="delta"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+          <span class="kf"></span><span class="seg"><span class="delta"><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i><i></i></span></span>
+          <span class="kf"></span>
+        </div>
+        <canvas class="curve" id="film" width="1040" height="66"></canvas>
+        <div class="playhead"></div>
+      </div>
+      <div class="filmlbl">
+        <span class="mono"><b>●</b> checkpoint.bin — keyframe</span>
+        <span class="mono">journal.log — Δ stream</span>
+        <span class="mono">curve.tsv — meanz track</span>
+      </div>
+    </div>
+  </header>
+
+  <!-- ARCHITECTURE -->
+  <section>
+    <h2>How it reconstructs any frame</h2>
+    <p class="lede">The Scope never runs the engine — it <em>reloads</em> it. To draw the mind at step&nbsp;T, it seeks the nearest keyframe and replays the delta, exactly like video.</p>
+    <div class="flow">
+      <div class="flowrow">
+        <div class="stage">the record<span>runs/&lt;verb&gt;_NNNN/</span></div>
+        <p><code>checkpoint.bin</code> keyframes · <code>journal.log</code> live-flushed deltas · <code>curve.tsv</code> scalars · <code>rankings.jsonl</code> answers · <code>manifest</code> intake fingerprint. The whole run, self-describing.</p>
+      </div>
+      <div class="flowrow">
+        <div class="stage">RunReader<span>StateAt(T)</span></div>
+        <p>Seeks the nearest checkpoint ≤ T, reconstructs <code>Tape</code> + <code>Loom</code> via the serialization we just landed, replays the journal Δ to T. Keyframes make scrubbing O(N-between), not O(run).</p>
+      </div>
+      <div class="flowrow">
+        <div class="stage">the surfaces<span>ISurface.Paint</span></div>
+        <p>Four <code>ISurface</code>s over <code>BobFrame</code>, tabbed by number key, each drawing the reconstructed state. A shared scrub-step; an always-on timeline. Read-only — outside the determinism Vow.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- THE FOUR VIEWS -->
+  <section>
+    <h2>The four instruments</h2>
+    <p class="lede">Press <span class="k">1</span> <span class="k">2</span> <span class="k">3</span> <span class="k">4</span> to switch. Each renders the same frame from a different organ of the mind.</p>
+
+    <div class="views">
+
+      <!-- 1 TAPE -->
+      <div class="view">
+        <div class="vh"><span class="k">1</span><span class="name">TAPE</span><span class="src">Tape.Ids · ProvenanceOf · IsEvidence · Resolve</span></div>
+        <div class="stage-box">
+          <div class="spine">
+            <div class="srow vested"><span class="id">s3311</span><span class="g" style="background:var(--real)"></span><span class="bar" style="width:78%;background:linear-gradient(90deg,var(--real),#2b6b8a)"></span><span class="len">312B</span></div>
+            <div class="srow"><span class="id">s3312</span><span class="g" style="background:var(--dream)"></span><span class="bar" style="width:34%;background:linear-gradient(90deg,var(--dream),#4a3f78)"></span><span class="len">96B</span></div>
+            <div class="srow vested"><span class="id">s3313</span><span class="g" style="background:var(--real)"></span><span class="bar" style="width:61%;background:linear-gradient(90deg,var(--real),#2b6b8a)"></span><span class="len">240B</span></div>
+            <div class="srow"><span class="id">s3314</span><span class="g" style="background:var(--dream)"></span><span class="bar" style="width:20%;background:linear-gradient(90deg,var(--dream),#4a3f78)"></span><span class="len">54B</span></div>
+            <div class="srow shed"><span class="id">s3315</span><span class="g" style="background:var(--faint)"></span><span class="bar" style="width:44%;background:#2a3140"></span><span class="len">·</span></div>
+            <div class="srow vested"><span class="id">s3316</span><span class="g" style="background:var(--real)"></span><span class="bar" style="width:90%;background:linear-gradient(90deg,var(--real),#2b6b8a)"></span><span class="len">428B</span></div>
+            <div class="srow"><span class="id">s3317</span><span class="g" style="background:var(--dream)"></span><span class="bar" style="width:41%;background:linear-gradient(90deg,var(--dream),#4a3f78)"></span><span class="len">128B</span></div>
+          </div>
+        </div>
+        <div class="cap">The spine. Every span a row — <b>●&nbsp;real</b>, <b style="color:var(--dream)">●&nbsp;dream</b>, <b style="color:var(--vest)">◆&nbsp;vested</b> (amber rail), source-tinted, length-scaled, shed spans dimmed to their <span class="shedtag">tape.spanlog</span> lane. <b>Direct-indexed, culled to the viewport</b> — draws the visible rows only, never the whole tape.</div>
+      </div>
+
+      <!-- 2 GRAMMAR -->
+      <div class="view">
+        <div class="vh"><span class="k">2</span><span class="name">GRAMMAR</span><span class="src">Loom · GrammarRule[a,b] · MergeEvent</span></div>
+        <div class="stage-box">
+          <div class="icicle">
+            <div class="ilayer"><span class="ilbl">d4</span><span class="icell" style="flex:6;background:var(--signal)">R‑1284</span></div>
+            <div class="ilayer"><span class="ilbl">d3</span><span class="icell" style="flex:3.4;background:#4fb98c">R‑902</span><span class="icell" style="flex:2.6;background:#4fb98c">R‑871</span></div>
+            <div class="ilayer"><span class="ilbl">d2</span><span class="icell" style="flex:2;background:#3f9a75">R‑610</span><span class="icell" style="flex:1.4;background:#3f9a75">R‑77</span><span class="icell" style="flex:2.6;background:#3f9a75">R‑540</span></div>
+            <div class="ilayer"><span class="ilbl">d1</span><span class="icell" style="flex:1.2;background:#2f7357">·</span><span class="icell" style="flex:.8;background:#2f7357">·</span><span class="icell" style="flex:1;background:#2f7357">·</span><span class="icell" style="flex:1.4;background:#2f7357">·</span><span class="icell" style="flex:1.2;background:#2f7357">·</span></div>
+            <div class="ilayer"><span class="ilbl">Σ</span><span class="icell" style="flex:8;background:#1a2531;color:var(--faint)">terminals · 256 bytes</span></div>
+          </div>
+        </div>
+        <div class="cap">The abstraction ladder as an <b>icicle</b> — each Re-Pair rule a cell, width by expansion length, nested over its <span class="mono">[a,b]</span> children; depth is the ladder. Cheap rects, LOD-clustered for 100k rules. Toggle to a <b>node-graph</b> with the PPMI coupling overlay; the <span class="mono">MergeEvent</span> stream plays the grammar <b>minting itself</b> as the run advances.</div>
+      </div>
+
+      <!-- 3 DYNAMICS -->
+      <div class="view">
+        <div class="vh"><span class="k">3</span><span class="name">DYNAMICS</span><span class="src">curve.tsv · every scalar channel</span></div>
+        <div class="stage-box">
+          <canvas id="dyn" width="520" height="150"></canvas>
+          <div class="chips">
+            <span class="chip">meanz <b style="color:var(--signal)">−0.72</b></span>
+            <span class="chip">vested <b>418k</b></span>
+            <span class="chip">tape <b>21.6k</b></span>
+            <span class="chip">dream:real <b>0.04</b></span>
+            <span class="chip">throttle <b>0.57</b></span>
+          </div>
+        </div>
+        <div class="cap">The scalar soul. <span class="mono">meanz</span> against the <b style="color:var(--signal)">−0.70 basin band</b>, the <b style="color:var(--sink)">−1.11 sink</b> line, regime tints (ORBIT / CONVERGE / COLLAPSE) as background. Small-multiple channels, downsampled to pixel resolution. The scrub-head is the vertical marker — read the mind's health at any instant.</div>
+      </div>
+
+      <!-- 4 AGENT -->
+      <div class="view">
+        <div class="vh"><span class="k">4</span><span class="name">AGENT</span><span class="src">rankings.jsonl · PathVotes · explain-rank</span></div>
+        <div class="stage-box">
+          <div class="tally">
+            <div class="cand">
+              <span class="file"><span class="tag ans">ANSWER</span>apps/config.py</span>
+              <span class="meta">3 broad greps</span>
+              <span class="votebar" style="width:100%;background:linear-gradient(90deg,#e46a76,#7a2e37)">vote 5.60 · breadth</span>
+            </div>
+            <div class="cand">
+              <span class="file"><span class="tag gold">GOLD</span>fields/__init__.py</span>
+              <span class="meta">1 razor grep · fan=1</span>
+              <span class="votebar" style="width:54%;background:linear-gradient(90deg,var(--vest),#7a5a24)">vote 3.00</span>
+            </div>
+            <div class="cand">
+              <span class="file">db/models/base.py</span>
+              <span class="meta">2 greps</span>
+              <span class="votebar" style="width:41%;background:#2a3140;color:var(--dim)">vote 2.30</span>
+            </div>
+          </div>
+          <div class="verdict">django-14238 · <b>the hub buries the gold</b> — breadth-of-corroboration out-votes a fan=1 perfect localization</div>
+        </div>
+        <div class="cap">The decision, dissected. Per instance: the greps, each candidate's vote broken into contributions, <b style="color:var(--vest)">GOLD</b> vs committed <b style="color:var(--sink)">ANSWER</b>. This is the corroboration⊥discrimination wall <b>made visible</b> — watch the popular file's votes pile up and drown the sharp one. When the sharpness fix lands, you'll see the bars flip here first.</div>
+      </div>
+
+    </div>
+  </section>
+
+  <!-- TIMELINE -->
+  <section>
+    <h2>The scrubber</h2>
+    <p class="lede">Always on, across the bottom. The run's whole arc at a glance; drag to any frame, or let it follow the live tail.</p>
+    <div class="tl">
+      <div class="tlbar">
+        <canvas class="tlspark" id="tl" width="1040" height="40"></canvas>
+        <span class="tick" style="left:20%"></span><span class="tick" style="left:40%"></span>
+        <span class="tick" style="left:60%"></span><span class="tick" style="left:80%"></span>
+        <span class="tlhead"></span>
+      </div>
+      <div class="tlctl">
+        <div class="grp"><span class="btn">▶</span><span class="btn">‖</span><span class="btn">⇥</span><span class="dim">play · step · speed</span></div>
+        <div class="grp"><span class="legkey"><span class="dot" style="background:var(--signal)"></span>checkpoint tick</span></div>
+        <div class="grp"><span class="legkey"><span class="dot" style="background:var(--vest)"></span>scrub head</span></div>
+        <div class="grp"><span class="dim">LIVE ▸ auto-follow tail</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- PERF -->
+  <section>
+    <h2>Cheap by construction</h2>
+    <p class="lede">A cockpit for a mind can't cost more than the mind. Every surface obeys <span class="mono">CPU = cadence × per-pass-work</span>.</p>
+    <div class="laws">
+      <div class="law"><div class="n">O(VISIBLE), NOT O(TAPE)</div><p>The spine direct-indexes <code>Tape.Ids[scrollY/rowH ‥ +viewH/rowH]</code> — draws the rows on screen and no others, on a 21k-span tape or a 21M one.</p></div>
+      <div class="law"><div class="n">LOD OVER 100K RULES</div><p>The grammar spatial-culls to the pan region and clusters to super-nodes at low zoom; detail resolves only where you look.</p></div>
+      <div class="law"><div class="n">DOWNSAMPLE TO PIXELS</div><p>Curves plot one point per column, not per step. A million-step run draws in a screen-width of samples.</p></div>
+      <div class="law"><div class="n">SIGNAL-DRIVEN, IDLE = 0</div><p>Redraw only on scrub, input, or a live journal append. A paused Scope on a finished run burns nothing.</p></div>
+    </div>
+  </section>
+
+  <!-- BUILD -->
+  <section>
+    <h2>Build order</h2>
+    <p class="lede">Each phase ships a usable instrument. The substrate exists — this is assembly, not invention.</p>
+    <div class="phases">
+      <div class="phase"><div class="pn">1<span>SPINE</span></div><div><h3>RunReader + chrome + DYNAMICS</h3><p>The <code>StateAt(T)</code> keyframe-seek/Δ-replay data layer, the tab + timeline shell, and the curve view — mostly an evolution of today's <code>SparklineSurface</code>. Proves the loop and the scrubber end to end.</p></div></div>
+      <div class="phase"><div class="pn">2<span>FLAGSHIP</span></div><div><h3>TAPE</h3><p>The culled span spine — the headline view. Direct-indexed viewport, provenance encoding, the shed lane, click-to-inspect a span's full content + witnesses + vest step.</p></div></div>
+      <div class="phase"><div class="pn">3<span>TOPOLOGY</span></div><div><h3>GRAMMAR</h3><p>Icicle first (cheap, legible), then the node-graph + LOD + PPMI overlay, then the <code>MergeEvent</code> construction playback.</p></div></div>
+      <div class="phase"><div class="pn">4<span>FRONTIER</span></div><div><h3>AGENT + live/playback</h3><p>The vote-tally dissector — the bottleneck-visualizer that earns its keep the moment we test the sharpness fix. Plus live-tail follow and playback transport.</p></div></div>
+    </div>
+  </section>
+
+  <footer>COGITO SCOPE · a schematic · draws the mind, costs the pixel</footer>
+</div>
+
+<script>
+  const rm = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  // film-strip meanz track
+  (function(){
+    const c=document.getElementById('film'); if(!c)return; const x=c.getContext('2d');
+    const W=c.width,H=c.height; x.clearRect(0,0,W,H);
+    // basin band
+    x.fillStyle='rgba(87,214,160,.10)'; x.fillRect(0,H*0.30,W,H*0.34);
+    x.strokeStyle='rgba(87,214,160,.25)'; x.setLineDash([4,4]); x.beginPath(); x.moveTo(0,H*0.47); x.lineTo(W,H*0.47); x.stroke(); x.setLineDash([]);
+    x.beginPath(); x.lineWidth=2; x.strokeStyle='#57d6a0';
+    for(let i=0;i<=W;i+=4){const t=i/W; const y=H*0.47 + Math.sin(t*22)*7*Math.exp(-t*1.2) + (t>.5?(t-.5)*24:0); i?x.lineTo(i,y):x.moveTo(i,y);}
+    x.stroke();
+  })();
+  // dynamics curve — meanz with basin + sink
+  (function(){
+    const c=document.getElementById('dyn'); if(!c)return; const x=c.getContext('2d');
+    const W=c.width,H=c.height;
+    const yb=v=>{/* map meanz -0.4..-1.2 to H */ return (( -0.4 - v)/0.8)*H;};
+    x.clearRect(0,0,W,H);
+    // basin band -0.50..-0.95
+    x.fillStyle='rgba(87,214,160,.10)'; x.fillRect(0,yb(-0.5),W,yb(-0.95)-yb(-0.5));
+    x.strokeStyle='rgba(87,214,160,.30)'; x.lineWidth=1; x.setLineDash([3,4]);
+    x.beginPath();x.moveTo(0,yb(-0.70));x.lineTo(W,yb(-0.70));x.stroke();
+    // sink -1.11
+    x.strokeStyle='rgba(228,106,118,.5)'; x.beginPath();x.moveTo(0,yb(-1.11));x.lineTo(W,yb(-1.11));x.stroke(); x.setLineDash([]);
+    // meanz line: starts -0.65, dips, holds basin
+    x.beginPath(); x.lineWidth=2; x.strokeStyle='#57d6a0';
+    for(let i=0;i<=W;i+=3){const t=i/W; let v=-0.62 - 0.12*t - 0.05*Math.sin(t*30) - 0.03*Math.sin(t*9); i?x.lineTo(i,yb(v)):x.moveTo(i,yb(v));}
+    x.stroke();
+    // scrub head
+    x.strokeStyle='#f0b45a'; x.lineWidth=1.5; x.beginPath(); x.moveTo(W*0.62,0); x.lineTo(W*0.62,H); x.stroke();
+    // labels
+    x.fillStyle='#4b5568'; x.font='9px ui-monospace,monospace';
+    x.fillText('−0.70 basin',6,yb(-0.70)-4); x.fillText('−1.11 sink',6,yb(-1.11)-4);
+  })();
+  // timeline vest-rate spark
+  (function(){
+    const c=document.getElementById('tl'); if(!c)return; const x=c.getContext('2d');
+    const W=c.width,H=c.height; x.clearRect(0,0,W,H);
+    const g=x.createLinearGradient(0,0,0,H); g.addColorStop(0,'rgba(87,214,160,.35)'); g.addColorStop(1,'rgba(87,214,160,0)');
+    x.beginPath(); x.moveTo(0,H);
+    for(let i=0;i<=W;i+=3){const t=i/W; const y=H-8-(H-14)*(0.35+0.4*t+0.12*Math.sin(t*26)+0.08*Math.sin(t*7)); x.lineTo(i,Math.max(2,y));}
+    x.lineTo(W,H); x.closePath(); x.fillStyle=g; x.fill();
+    x.beginPath();
+    for(let i=0;i<=W;i+=3){const t=i/W; const y=H-8-(H-14)*(0.35+0.4*t+0.12*Math.sin(t*26)+0.08*Math.sin(t*7)); i?x.lineTo(i,Math.max(2,y)):x.moveTo(i,Math.max(2,y));}
+    x.strokeStyle='#57d6a0'; x.lineWidth=1.5; x.stroke();
+  })();
+</script>

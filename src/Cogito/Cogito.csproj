@@ -1,0 +1,20 @@
+Project(
+  sdk: "Microsoft.NET.Sdk",
+  properties: [
+    // cogito — the deterministic Q* COGITO scribe (Re-Pair + MDL + content-addressed log + replay).
+    // The symbolic lens, sibling to thauten's neural lens. net10 comes from the generated .g flow;
+    // LangVersion 14 / unsafe (Hash256 InlineArray) mirror the engine siblings.
+    Property(name: "OutputType", value: "Exe"),
+    Property(name: "LangVersion", value: "14"),
+    Property(name: "InvariantGlobalization", value: "true"),
+    Property(name: "AllowUnsafeBlocks", value: "true"),
+  ],
+  package_references: [
+    // System.CommandLine 2.0.7 — the standard .NET CLI framework (RootCommand + typed
+    // Option<T>/Argument<T> + explicit SetAction handlers). AOT-safe via the EXPLICIT api
+    // (ParseResult.GetValue, no reflection model-binding); org-pinned 2.0.7 (cc-sors/sorsrs/rk).
+    PackageReference(include: "System.CommandLine", version: "2.0.7"),
+    PackageReference(include: "ScottPlot", version: "5.1.59"),
+    PackageReference(include: "Utf8StringInterpolation", version: "1.*"),
+  ],
+)
